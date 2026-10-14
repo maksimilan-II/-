@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kava & Craft | Меню Кав'ярні</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        coffee: {
+                            50: '#fdfbf7',
+                            100: '#f7f1e5',
+                            200: '#eddcc4',
+                            300: '#e0c29d',
+                            400: '#d0a273',
+                            500: '#be814e',
+                            600: '#a8673f',
+                            700: '#8c5035',
+                            800: '#724230',
+                            900: '#5c372a',
+                            950: '#341d16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Glassmorphism */
+        .glass-header {
+            background: rgba(253, 251, 247, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-header {
+            background: rgba(26, 20, 18, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-coffee-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between selection:bg-coffee-500 selection:text-white transition-colors duration-300">
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-40 w-full border-b border-coffee-200/60 dark:border-slate-800 glass-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            
+            <!-- Branding -->
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-coffee-800 to-coffee-600 flex items-center justify-center text-amber-100 shadow-md shadow-coffee-900/20">
+                    <i data-lucide="coffee" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="font-serif-title text-xl font-bold tracking-tight text-coffee-950 dark:text-amber-50 block leading-tight">
+                        Kava & Craft
+                    </span>
+                    <span class="text-[11px] font-medium uppercase tracking-widest text-coffee-600 dark:text-coffee-400">Крафтова Кав'ярня</span>
+                </div>
+            </div>
+
+            <!-- Search Bar (Desktop) -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 text-coffee-400"></i>
+                <input type="text" id="searchInput" oninput="filterMenu()" placeholder="Пошук кави, десертів, інгредієнтів..." class="w-full pl-10 pr-4 py-2 text-sm rounded-full bg-white dark:bg-slate-900 border border-coffee-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-coffee-500/50 transition-all">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                
+                <!-- Build Your Coffee Button -->
+                <button onclick="openCustomizerModal()" class="hidden sm:flex items-center space-x-2 px-4 py-2.5 rounded-full bg-coffee-100 dark:bg-slate-800 hover:bg-coffee-200/70 dark:hover:bg-slate-700 text-coffee-900 dark:text-amber-100 text-sm font-semibold transition-all border border-coffee-200 dark:border-slate-700">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-coffee-600 dark:text-coffee-400"></i>
+                    <span>Конструктор</span>
+                </button>
+
+                <!-- Dark Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2.5 rounded-full bg-coffee-100/60 dark:bg-slate-800 hover:bg-coffee-200/60 dark:hover:bg-slate-700 text-coffee-800 dark:text-amber-100 transition-colors">
+                    <i id="themeSunIcon" data-lucide="sun" class="w-5 h-5 hidden"></i>
+                    <i id="themeMoonIcon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <button onclick="toggleCartDrawer()" class="relative p-2.5 rounded-full bg-coffee-800 hover:bg-coffee-900 dark:bg-coffee-600 dark:hover:bg-coffee-500 text-white shadow-lg shadow-coffee-800/20 transition-all flex items-center justify-center">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 bg-amber-500 text-coffee-950 font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center scale-0 transition-transform">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Search Input -->
+        <div class="px-4 pb-3 md:hidden">
+            <div class="relative w-full">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-coffee-400"></i>
+                <input type="text" id="searchInputMobile" oninput="syncMobileSearch(this.value)" placeholder="Пошук у меню..." class="w-full pl-10 pr-4 py-2 text-sm rounded-full bg-white dark:bg-slate-900 border border-coffee-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-coffee-500/50">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-10">
+
+        <!-- Hero Banner -->
+        <section class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-coffee-950 via-coffee-900 to-coffee-800 text-amber-50 p-6 sm:p-10 shadow-2xl">
+            <div class="relative z-10 max-w-2xl space-y-4">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/30 text-xs font-medium uppercase tracking-wider">
+                    <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                    <span>Свіже обсмаження щодня</span>
+                </div>
+                <h1 class="font-serif-title text-3xl sm:text-5xl font-bold leading-tight">
+                    Відкрийте справжній смак вишуканої кави
+                </h1>
+                <p class="text-coffee-200 text-sm sm:text-base leading-relaxed">
+                    100% арабіка спеціального обсмаження, авторські напої та найсвіжіша випічка з нашої власної пекарні.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3">
+                    <button onclick="openCustomizerModal()" class="px-5 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-coffee-950 font-bold text-sm transition-all shadow-md flex items-center space-x-2">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        <span>Створити власний напій</span>
+                    </button>
+                    <a href="#menuSection" class="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all border border-white/20">
+                        Переглянути меню
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Decorative background elements -->
+            <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-20 pointer-events-none hidden md:block bg-no-repeat bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop');"></div>
+            <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        </section>
+
+        <!-- Category Tabs / Filter Bar -->
+        <section id="menuSection" class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="font-serif-title text-2xl sm:text-3xl font-bold text-coffee-950 dark:text-amber-50">Меню Кав'ярні</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Оберіть категорію або скористайтесь пошуком</p>
+                </div>
+
+                <!-- Customizer mobile trigger -->
+                <button onclick="openCustomizerModal()" class="sm:hidden p-2.5 rounded-xl bg-coffee-100 dark:bg-slate-800 text-coffee-900 dark:text-amber-100 flex items-center space-x-1 text-xs font-semibold">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-coffee-600"></i>
+                    <span>Конструктор</span>
+                </button>
+            </div>
+
+            <!-- Scrollable Categories Bar -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-2 hide-scrollbar border-b border-coffee-200/50 dark:border-slate-800">
+                <button onclick="selectCategory('all')" data-cat="all" class="category-btn active-cat px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-coffee-800 text-white shadow-md">
+                    Всі напої та страви
+                </button>
+                <button onclick="selectCategory('classic')" data-cat="classic" class="category-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-coffee-100 dark:hover:bg-slate-800">
+                    Еспресо & Класика
+                </button>
+                <button onclick="selectCategory('signature')" data-cat="signature" class="category-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-coffee-100 dark:hover:bg-slate-800">
+                    Авторські напої
+                </button>
+                <button onclick="selectCategory('cold')" data-cat="cold" class="category-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-coffee-100 dark:hover:bg-slate-800">
+                    Холодні напої
+                </button>
+                <button onclick="selectCategory('bakery')" data-cat="bakery" class="category-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-coffee-100 dark:hover:bg-slate-800">
+                    Десерти & Випічка
+                </button>
+            </div>
+        </section>
+
+        <!-- Menu Grid -->
+        <section id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Items rendered dynamically via JavaScript -->
+        </section>
+
+        <!-- Empty state message -->
+        <div id="noResults" class="hidden text-center py-16 space-y-3">
+            <div class="w-16 h-16 bg-coffee-100 dark:bg-slate-800 text-coffee-600 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="coffee-off" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Нічого не знайдено</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Спробуйте змінити пошуковий запит або вибрати іншу категорію</p>
+            <button onclick="clearSearch()" class="px-4 py-2 rounded-full bg-coffee-800 text-white text-xs font-semibold">Скинути пошук</button>
+        </div>
+
+        <!-- Info & Wi-Fi Widgets Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+            <!-- Working Hours -->
+            <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-coffee-200/60 dark:border-slate-800 shadow-sm flex items-start space-x-4">
+                <div class="p-3 rounded-2xl bg-coffee-100 dark:bg-slate-800 text-coffee-700 dark:text-coffee-300">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">Графік роботи</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">Пн - Пт: 08:00 – 21:00</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">Сб - Нд: 09:00 – 22:00</p>
+                </div>
+            </div>
+
+            <!-- Address / Location -->
+            <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-coffee-200/60 dark:border-slate-800 shadow-sm flex items-start space-x-4">
+                <div class="p-3 rounded-2xl bg-coffee-100 dark:bg-slate-800 text-coffee-700 dark:text-coffee-300">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="font-bold text-base text-slate-900 dark:text-white">Локація</h3>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">вул. Хрещатик, 24, Київ</p>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">● Відчинено зараз</p>
+                </div>
+            </div>
+
+            <!-- Wi-Fi Widget -->
+            <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-coffee-200/60 dark:border-slate-800 shadow-sm flex items-start justify-between">
+                <div class="flex items-start space-x-4">
+                    <div class="p-3 rounded-2xl bg-coffee-100 dark:bg-slate-800 text-coffee-700 dark:text-coffee-300">
+                        <i data-lucide="wifi" class="w-6 h-6"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white">Кавовий Wi-Fi</h3>
+                        <p class="text-xs text-slate-500">Мережа: <span class="font-semibold text-slate-700 dark:text-slate-300">KavaCraft_Guest</span></p>
+                        <p class="text-xs text-slate-500">Пароль: <span class="font-semibold text-slate-700 dark:text-slate-300">coffee2026</span></p>
+                    </div>
+                </div>
+                <button onclick="copyWifiPassword('coffee2026')" class="p-2 text-coffee-600 hover:text-coffee-800 dark:text-coffee-400 rounded-xl hover:bg-coffee-50 dark:hover:bg-slate-800" title="Скопіювати пароль">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-coffee-200/60 dark:border-slate-800 bg-white dark:bg-slate-950 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="coffee" class="w-4 h-4 text-coffee-600"></i>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">Kava & Craft</span>
+                <span>© 2026 Всі права захищені</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="hover:text-coffee-600">Інстаграм</a>
+                <a href="#" class="hover:text-coffee-600">Фейсбук</a>
+                <a href="#" class="hover:text-coffee-600">Меню в PDF</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Interactive Customizer Modal ("Сконструюй свою каву") -->
+    <div id="customizerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-900 border border-coffee-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-coffee-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="wand-2" class="w-5 h-5 text-coffee-600"></i>
+                    <h3 class="font-serif-title font-bold text-xl text-slate-900 dark:text-white">Конструктор Напою</h3>
+                </div>
+                <button onclick="closeCustomizerModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Customizer Options -->
+            <div class="space-y-5 text-sm">
+                
+                <!-- 1. Base Coffee -->
+                <div class="space-y-2">
+                    <label class="font-bold text-slate-900 dark:text-slate-100 block">1. Основа напою</label>
+                    <div class="grid grid-cols-3 gap-2" id="customBaseGroup">
+                        <button onclick="setCustomOption('base', 'Espresso', 50)" class="custom-opt-base active-opt border rounded-xl p-2.5 text-center transition-all bg-coffee-800 text-white font-semibold">
+                            Еспресо <span class="block text-[10px] font-normal opacity-80">50 грн</span>
+                        </button>
+                        <button onclick="setCustomOption('base', 'Americano', 55)" class="custom-opt-base border rounded-xl p-2.5 text-center transition-all border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                            Американо <span class="block text-[10px] text-slate-400">55 грн</span>
+                        </button>
+                        <button onclick="setCustomOption('base', 'ColdBrew', 70)" class="custom-opt-base border rounded-xl p-2.5 text-center transition-all border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                            Колд Брю <span class="block text-[10px] text-slate-400">70 грн</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Milk Choice -->
+                <div class="space-y-2">
+                    <label class="font-bold text-slate-900 dark:text-slate-100 block">2. Молоко</label>
+                    <select id="customMilkSelect" onchange="updateCustomizerPrice()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none">
+                        <option value="none|0">Без молока (+0 грн)</option>
+                        <option value="standard|15">Звичайне коров'яче (+15 грн)</option>
+                        <option value="oat|30">Вівсяне альтернативне (+30 грн)</option>
+                        <option value="almond|35">Мигдалеве (+35 грн)</option>
+                        <option value="coconut|35">Кокосове (+35 грн)</option>
+                        <option value="lactose_free|20">Безлактозне (+20 грн)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Syrups -->
+                <div class="space-y-2">
+                    <label class="font-bold text-slate-900 dark:text-slate-100 block">3. Сироп (+15 грн)</label>
+                    <select id="customSyrupSelect" onchange="updateCustomizerPrice()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none">
+                        <option value="none|0">Без сиропу</option>
+                        <option value="vanilla|15">Ваніль</option>
+                        <option value="caramel|15">Солона Карамель</option>
+                        <option value="hazelnut|15">Лісовий горіх</option>
+                        <option value="coconut|15">Кокос</option>
+                    </select>
+                </div>
+
+                <!-- 4. Extra Toppings / Addons -->
+                <div class="space-y-2">
+                    <label class="font-bold text-slate-900 dark:text-slate-100 block">4. Додатки</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 dark:text-slate-300">
+                            <input type="checkbox" id="addExtraShot" onchange="updateCustomizerPrice()" class="rounded border-slate-300 text-coffee-600 focus:ring-coffee-500">
+                            <span>Додатковий шот еспресо (+25 грн)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 dark:text-slate-300">
+                            <input type="checkbox" id="addCream" onchange="updateCustomizerPrice()" class="rounded border-slate-300 text-coffee-600 focus:ring-coffee-500">
+                            <span>Збиті вершки (+20 грн)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-xs text-slate-700 dark:text-slate-300">
+                            <input type="checkbox" id="addMarshmallow" onchange="updateCustomizerPrice()" class="rounded border-slate-300 text-coffee-600 focus:ring-coffee-500">
+                            <span>Маршмелоу (+15 грн)</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Customizer Footer / Price calculation -->
+            <div class="pt-4 border-t border-coffee-100 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-slate-400 block">Разом:</span>
+                    <span id="customizerTotalPrice" class="text-2xl font-bold text-coffee-950 dark:text-amber-100">50 грн</span>
+                </div>
+                <button onclick="addCustomCoffeeToCart()" class="px-6 py-3 rounded-full bg-coffee-800 hover:bg-coffee-900 text-white font-bold text-sm transition-all shadow-lg flex items-center space-x-2">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span>Додати в кошик</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Slide-Over Drawer -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div onclick="toggleCartDrawer()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+
+        <!-- Sliding Panel -->
+        <div class="absolute right-0 top-0 bottom-0 max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col justify-between p-6 z-10 transition-transform">
+            
+            <!-- Cart Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-coffee-600"></i>
+                    <h3 class="font-serif-title font-bold text-xl text-slate-900 dark:text-white">Ваше замовлення</h3>
+                </div>
+                <button onclick="toggleCartDrawer()" class="p-2 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Order Type Selector (Dine-in or Takeaway) -->
+            <div class="my-4">
+                <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold">
+                    <button id="btnDineIn" onclick="setOrderType('dineIn')" class="py-2 rounded-xl text-center transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm">
+                        ☕ В закладі
+                    </button>
+                    <button id="btnTakeaway" onclick="setOrderType('takeaway')" class="py-2 rounded-xl text-center transition-all text-slate-500 dark:text-slate-400">
+                        🥤 З собою
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cart Items List -->
+            <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-4 my-2 pr-1">
+                <!-- Cart items rendered dynamically -->
+            </div>
+
+            <!-- Cart Empty Placeholder -->
+            <div id="cartEmptyState" class="hidden flex-1 flex flex-col items-center justify-center text-center text-slate-400 space-y-3">
+                <i data-lucide="shopping-basket" class="w-12 h-12 stroke-1"></i>
+                <p class="text-sm">Ваш кошик поки що порожній</p>
+            </div>
+
+            <!-- Cart Footer & Checkout -->
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4">
+                <div class="space-y-1.5 text-sm">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Сума замовлення</span>
+                        <span id="cartSubtotal">0 грн</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-base text-slate-900 dark:text-white pt-2 border-t border-dashed border-slate-200 dark:border-slate-800">
+                        <span>До сплати</span>
+                        <span id="cartTotal" class="text-coffee-600 dark:text-amber-400">0 грн</span>
+                    </div>
+                </div>
+
+                <button onclick="submitOrder()" id="checkoutBtn" disabled class="w-full py-3.5 rounded-2xl bg-coffee-800 hover:bg-coffee-900 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center space-x-2">
+                    <span>Оформити замовлення</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2 px-4 py-3 rounded-2xl bg-coffee-950 text-white shadow-xl border border-coffee-800 text-sm font-medium">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMessage">Додано в кошик!</span>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="orderSuccessModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 border border-coffee-200 dark:border-slate-800 shadow-2xl">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <i data-lucide="check" class="w-8 h-8"></i>
+            </div>
+            <h3 class="font-serif-title font-bold text-2xl text-slate-900 dark:text-white">Дякуємо за замовлення!</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                Ваше замовлення прийнято і вже готується бариста.
+            </p>
+            <div class="p-3 bg-coffee-50 dark:bg-slate-800 rounded-2xl border border-coffee-100 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                <p>Орієнтовний час готовності: <span class="font-bold text-coffee-600">7–10 хвилин</span></p>
+                <p id="orderTypeSummary">Формат: В закладі</p>
+            </div>
+            <button onclick="closeOrderSuccessModal()" class="w-full py-3 rounded-xl bg-coffee-800 text-white font-bold text-sm">
+                Зрозуміло
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Data & Logic -->
+    <script>
+        // Menu Items Database
+        const menuItems = [
+            {
+                id: 1,
+                name: "Еспресо",
+                category: "classic",
+                description: "Класичний насичений шот арабіки з щільною крема та фруктово-шоколадними нотками.",
+                price: 50,
+                volume: "30 мл",
+                badge: "Хіт",
+                image: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 2,
+                name: "Капучино",
+                category: "classic",
+                description: "Ніжний баланс еспресо та збитого збитого молока з шовковистою піною.",
+                price: 75,
+                volume: "250 мл",
+                badge: "Хіт",
+                image: "https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 3,
+                name: "Лате Макіато",
+                category: "classic",
+                description: "М'який кавовий напій з більшою кількістю спіненого молока.",
+                price: 85,
+                volume: "350 мл",
+                badge: null,
+                image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 4,
+                name: "Солона Карамель Лате",
+                category: "signature",
+                description: "Авторський лате з домашньою солоною карамеллю та подвійним еспресо.",
+                price: 110,
+                volume: "350 мл",
+                badge: "Новинка",
+                image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 5,
+                name: "Лавандний Раф",
+                category: "signature",
+                description: "Вершковий кавовий напій, збитий з натуральним лавандовим цукром.",
+                price: 120,
+                volume: "300 мл",
+                badge: "Сезонний",
+                image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 6,
+                name: "Бамбл Кава",
+                category: "cold",
+                description: "Освіжаючий мікс апельсинового соку, еспресо та карамельного сиропу з льодом.",
+                price: 115,
+                volume: "400 мл",
+                badge: "Сезонний",
+                image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 7,
+                name: "Еспресо Тонік",
+                category: "cold",
+                description: "Класичний індійський тонік з подвійним шотом еспресо, скибкою лайма та льодом.",
+                price: 105,
+                volume: "350 мл",
+                badge: "Без лактози",
+                image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 8,
+                name: "Французький Круасан",
+                category: "bakery",
+                description: "Свіжоспечений хрусткий круасан на вершковому маслі.",
+                price: 65,
+                volume: "80 г",
+                badge: "Хіт",
+                image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=600&auto=format&fit=crop"
+            },
+            {
+                id: 9,
+                name: "Чізкейк Нью-Йорк",
+                category: "bakery",
+                description: "Ніжний сирний десерт на пісочній основі з ванільним соусом.",
+                price: 130,
+                volume: "150 г",
+                badge: null,
+                image: "https://images.unsplash.com/photo-1524351199678-941a58a3df50?q=80&w=600&auto=format&fit=crop"
+            }
+        ];
+
+        // State Management
+        let cart = [];
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let orderType = 'dineIn'; // 'dineIn' or 'takeaway'
+
+        // Customizer state
+        let customCoffee = {
+            base: { name: 'Еспресо', price: 50 },
+            milk: { name: 'Без молока', price: 0 },
+            syrup: { name: 'Без сиропу', price: 0 },
+            extras: []
+        };
+
+        // Render Menu Items Grid
+        function renderMenu() {
+            const grid = document.getElementById('menuGrid');
+            const noResults = document.getElementById('noResults');
+
+            const filtered = menuItems.filter(item => {
+                const matchesCat = activeCategory === 'all' || item.category === activeCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            noResults.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="group bg-white dark:bg-slate-900 border border-coffee-200/60 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <!-- Image Container -->
+                        <div class="relative h-48 w-full overflow-hidden bg-coffee-100 dark:bg-slate-800">
+                            <img src="${item.image}" alt="${item.name}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/341d16/ffffff?text=Kava'">
+                            
+                            ${item.badge ? `
+                                <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-400 text-coffee-950 shadow-md">
+                                    ${item.badge}
+                                </span>
+                            ` : ''}
+
+                            <span class="absolute bottom-3 right-3 px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-950/70 text-white backdrop-blur-md">
+                                ${item.volume}
+                            </span>
+                        </div>
+
+                        <!-- Card Details -->
+                        <div class="p-5 space-y-2">
+                            <h3 class="font-serif-title font-bold text-lg text-slate-900 dark:text-white group-hover:text-coffee-600 dark:group-hover:text-amber-400 transition-colors">
+                                ${item.name}
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                ${item.description}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card Action Footer -->
+                    <div class="p-5 pt-0 flex items-center justify-between border-t border-transparent mt-2">
+                        <div>
+                            <span class="text-xs text-slate-400 block">Ціна</span>
+                            <span class="text-xl font-bold text-coffee-950 dark:text-amber-50">${item.price} грн</span>
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="px-4 py-2.5 rounded-2xl bg-coffee-100 hover:bg-coffee-800 text-coffee-900 hover:text-white dark:bg-slate-800 dark:hover:bg-coffee-600 dark:text-amber-100 transition-all font-semibold text-xs flex items-center space-x-1.5">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>У кошик</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Category Filter
+        function selectCategory(category) {
+            activeCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.dataset.cat === category) {
+                    btn.className = "category-btn active-cat px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-coffee-800 text-white shadow-md";
+                } else {
+                    btn.className = "category-btn px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-300 hover:bg-coffee-100 dark:hover:bg-slate-800";
+                }
+            });
+            renderMenu();
+        }
+
+        // Search Filter
+        function filterMenu() {
+            const input = document.getElementById('searchInput');
+            searchQuery = input.value.trim();
+            document.getElementById('clearSearchBtn').classList.toggle('hidden', searchQuery === '');
+            renderMenu();
+        }
+
+        function syncMobileSearch(val) {
+            searchQuery = val.trim();
+            document.getElementById('searchInput').value = val;
+            renderMenu();
+        }
+
+        function clearSearch() {
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchInputMobile').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderMenu();
+        }
+
+        // Cart Actions
+        function addToCart(itemId) {
+            const item = menuItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existing = cart.find(c => c.id === itemId && !c.isCustom);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    volume: item.volume,
+                    quantity: 1,
+                    isCustom: false
+                });
+            }
+
+            updateCartUI();
+            showToast(`"${item.name}" додано у кошик!`);
+        }
+
+        function updateQuantity(index, delta) {
+            if (cart[index]) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyState = document.getElementById('cartEmptyState');
+            const badge = document.getElementById('cartBadge');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Update badge count
+            badge.textContent = totalItems;
+            badge.classList.toggle('scale-0', totalItems === 0);
+            badge.classList.toggle('scale-100', totalItems > 0);
+
+            // Checkout button state
+            checkoutBtn.disabled = cart.length === 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                document.getElementById('cartSubtotal').textContent = '0 грн';
+                document.getElementById('cartTotal').textContent = '0 грн';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-coffee-50/60 dark:bg-slate-800/50 border border-coffee-100 dark:border-slate-800">
+                    <div class="space-y-0.5 max-w-[180px]">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">${item.name}</h4>
+                        <p class="text-[11px] text-slate-400">${item.volume || 'Стандарт'}</p>
+                        <span class="text-xs font-semibold text-coffee-600 dark:text-amber-400">${item.price} грн</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2 bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <button onclick="updateQuantity(${idx}, -1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-red-500">
+                            <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <span class="text-xs font-bold w-4 text-center text-slate-800 dark:text-slate-100">${item.quantity}</span>
+                        <button onclick="updateQuantity(${idx}, 1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-emerald-500">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('cartSubtotal').textContent = `${totalPrice} грн`;
+            document.getElementById('cartTotal').textContent = `${totalPrice} грн`;
+
+            lucide.createIcons();
+        }
+
+        function toggleCartDrawer() {
+            document.getElementById('cartDrawer').classList.toggle('hidden');
+        }
+
+        function setOrderType(type) {
+            orderType = type;
+            const dineBtn = document.getElementById('btnDineIn');
+            const takeawayBtn = document.getElementById('btnTakeaway');
+
+            if (type === 'dineIn') {
+                dineBtn.className = "py-2 rounded-xl text-center transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+                takeawayBtn.className = "py-2 rounded-xl text-center transition-all text-slate-500 dark:text-slate-400";
+            } else {
+                takeawayBtn.className = "py-2 rounded-xl text-center transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm";
+                dineBtn.className = "py-2 rounded-xl text-center transition-all text-slate-500 dark:text-slate-400";
+            }
+        }
+
+        function submitOrder() {
+            if (cart.length === 0) return;
+
+            document.getElementById('orderTypeSummary').textContent = `Формат: ${orderType === 'dineIn' ? 'В закладі ☕' : 'З собою 🥤'}`;
+            toggleCartDrawer();
+            
+            // Clear cart
+            cart = [];
+            updateCartUI();
+
+            // Show success modal
+            document.getElementById('orderSuccessModal').classList.remove('hidden');
+        }
+
+        function closeOrderSuccessModal() {
+            document.getElementById('orderSuccessModal').classList.add('hidden');
+        }
+
+        // Customizer Functions
+        function openCustomizerModal() {
+            document.getElementById('customizerModal').classList.remove('hidden');
+            updateCustomizerPrice();
+        }
+
+        function closeCustomizerModal() {
+            document.getElementById('customizerModal').classList.add('hidden');
+        }
+
+        function setCustomOption(type, name, price) {
+            if (type === 'base') {
+                customCoffee.base = { name, price };
+                const buttons = document.querySelectorAll('.custom-opt-base');
+                buttons.forEach(btn => {
+                    if (btn.innerText.includes(name)) {
+                        btn.className = "custom-opt-base active-opt border rounded-xl p-2.5 text-center transition-all bg-coffee-800 text-white font-semibold";
+                    } else {
+                        btn.className = "custom-opt-base border rounded-xl p-2.5 text-center transition-all border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300";
+                    }
+                });
+            }
+            updateCustomizerPrice();
+        }
+
+        function updateCustomizerPrice() {
+            let total = customCoffee.base.price;
+
+            // Milk
+            const milkVal = document.getElementById('customMilkSelect').value.split('|');
+            const milkPrice = parseInt(milkVal[1]) || 0;
+            total += milkPrice;
+
+            // Syrup
+            const syrupVal = document.getElementById('customSyrupSelect').value.split('|');
+            const syrupPrice = parseInt(syrupVal[1]) || 0;
+            total += syrupPrice;
+
+            // Extras
+            if (document.getElementById('addExtraShot').checked) total += 25;
+            if (document.getElementById('addCream').checked) total += 20;
+            if (document.getElementById('addMarshmallow').checked) total += 15;
+
+            document.getElementById('customizerTotalPrice').textContent = `${total} грн`;
+            return total;
+        }
+
+        function addCustomCoffeeToCart() {
+            const totalPrice = updateCustomizerPrice();
+            
+            // Extract options summary
+            const milkVal = document.getElementById('customMilkSelect').options[document.getElementById('customMilkSelect').selectedIndex].text.split(' (')[0];
+            const syrupVal = document.getElementById('customSyrupSelect').options[document.getElementById('customSyrupSelect').selectedIndex].text;
+
+            let details = [milkVal];
+            if (syrupVal !== 'Без сиропу') details.push(`Сироп: ${syrupVal}`);
+
+            cart.push({
+                id: Date.now(),
+                name: `Авторський ${customCoffee.base.name}`,
+                price: totalPrice,
+                volume: details.join(', '),
+                quantity: 1,
+                isCustom: true
+            });
+
+            updateCartUI();
+            closeCustomizerModal();
+            showToast("Власний напій додано в кошик!");
+        }
+
+        // Utilities
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function copyWifiPassword(pass) {
+            const textarea = document.createElement('textarea');
+            textarea.value = pass;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Пароль Wi-Fi скопійовано!");
+            } catch (err) {
+                showToast("Не вдалося скопіювати");
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            document.getElementById('themeSunIcon').classList.toggle('hidden', !isDark);
+            document.getElementById('themeMoonIcon').classList.toggle('hidden', isDark);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderMenu();
+            updateCartUI();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
